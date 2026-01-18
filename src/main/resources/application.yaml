@@ -1,0 +1,39 @@
+server:
+   port: 8082
+   
+logging:
+  level:
+    com:
+      zaxxer:
+        hikari:
+          HikariConfig: DEBUG
+          
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics
+
+spring:
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+      
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          batchsize: 1000
+        order-inserts: true
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+      naming:
+         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+         
+batch:
+  postgres: "0 22 22 * * *"
+  maria: "0 25 22 * * *"
