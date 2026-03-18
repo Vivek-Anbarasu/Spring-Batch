@@ -35,5 +35,5 @@ spring:
 
          
 batch:
-  postgres: "0 22 22 * * *"
-  maria: "0 25 22 * * *"
+  postgres: "0 30 14 * * *"
+  maria: "0 31 14 * * *"

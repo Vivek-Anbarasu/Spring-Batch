@@ -11,7 +11,7 @@ import jakarta.persistence.Query;
 
 @Component
 public class MariaDBBatch {
-    
+
 	@PersistenceContext(unitName = "mariaDBPersistenceUnit")
 	EntityManager mariaDBEntityManager;
 

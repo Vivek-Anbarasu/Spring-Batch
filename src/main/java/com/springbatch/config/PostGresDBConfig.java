@@ -5,13 +5,14 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.springbatch.util.ApplicationUtil;
@@ -33,16 +34,27 @@ public class PostGresDBConfig {
 	
 	@Primary
 	@Bean(name = "postgresTransactionManager")
-	public PlatformTransactionManager postgresTransactionManager() {
+	public PlatformTransactionManager postgresTransactionManager(
+			@Qualifier("postgresEntityManager") LocalContainerEntityManagerFactoryBean entityManagerFactory) {
 		JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
-		jpaTransactionManager.setDataSource(createPostgresDataSource());
+		jpaTransactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
 		return jpaTransactionManager;
+	}
+
+	@Bean(name = "batchTransactionManager")
+	public PlatformTransactionManager batchTransactionManager(@Qualifier("postgresDataSource") DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
 	}
 	
 	@Primary
 	@Bean(name = "postgresEntityManager")
-	public LocalContainerEntityManagerFactoryBean entityanagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("postgresDataSource") DataSource dataSource) {
-		return builder.dataSource(dataSource).packages("com.springbatch").persistenceUnit("postgresPersistenceUnit").build();
+	public LocalContainerEntityManagerFactoryBean entityanagerFactory(@Qualifier("postgresDataSource") DataSource dataSource) {
+		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+		factoryBean.setDataSource(dataSource);
+		factoryBean.setPackagesToScan("com.springbatch");
+		factoryBean.setPersistenceUnitName("postgresPersistenceUnit");
+		factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+		return factoryBean;
 	}
-	
+
 }

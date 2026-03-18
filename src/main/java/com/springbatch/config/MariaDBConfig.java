@@ -5,12 +5,12 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.springbatch.util.ApplicationUtil;
@@ -30,15 +30,21 @@ public class MariaDBConfig {
 	}
 	
 	@Bean(name = "mariaDBTransactionManager")
-	public PlatformTransactionManager mariaDBTransactionManager() {
+	public PlatformTransactionManager mariaDBTransactionManager(
+			@Qualifier("mariaDBEntityManager") LocalContainerEntityManagerFactoryBean entityManagerFactory) {
 		JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
-		jpaTransactionManager.setDataSource(createmariaDBDataSource());
+		jpaTransactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
 		return jpaTransactionManager;
 	}
 	
 	@Bean(name = "mariaDBEntityManager")
-	public LocalContainerEntityManagerFactoryBean entityanagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("mariaDBDataSource") DataSource dataSource) {
-		return builder.dataSource(dataSource).packages("com.springbatch").persistenceUnit("mariaDBPersistenceUnit").build();
-	}
-	
+	public LocalContainerEntityManagerFactoryBean entityanagerFactory(@Qualifier("mariaDBDataSource") DataSource dataSource) {
+        LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+        factoryBean.setDataSource(dataSource);
+        factoryBean.setPackagesToScan("com.springbatch");
+        factoryBean.setPersistenceUnitName("mariaDBPersistenceUnit");
+        factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        return factoryBean;
+    }
+
 }
