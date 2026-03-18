@@ -22,7 +22,7 @@ public class MariaDBConfig {
 
 	@Bean(name = "mariaDBDataSource")
 	@ConfigurationProperties(prefix = "spring.maria")
-	public DataSource createmariaDBDataSource() {
+	public DataSource mariaDBDataSource() {
 		System.setProperty("spring.maria.jdbcUrl", ApplicationUtil.getMariaURL());
 		System.setProperty("spring.maria.username",  ApplicationUtil.getMariaUsername());
 		System.setProperty("spring.maria.password",  ApplicationUtil.getMariaPasssword());
@@ -38,7 +38,7 @@ public class MariaDBConfig {
 	}
 	
 	@Bean(name = "mariaDBEntityManager")
-	public LocalContainerEntityManagerFactoryBean entityanagerFactory(@Qualifier("mariaDBDataSource") DataSource dataSource) {
+	public LocalContainerEntityManagerFactoryBean mariaDBEntityManager(@Qualifier("mariaDBDataSource") DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
         factoryBean.setPackagesToScan("com.springbatch");
